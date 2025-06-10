@@ -1,7 +1,11 @@
-name: Deploy to Cloudflare Pages (Production)
+name: Deploy Preview to Cloudflare Pages
 
 on:
   push:
+    branches:
+      - feature/*
+      - develop
+  pull_request:
     branches: [main]
 
 concurrency:
@@ -10,12 +14,11 @@ concurrency:
 
 env:
   PROJECT_NAME: agriculture-japan
-  name: deploy
 
 jobs:
   deploy:
     runs-on: ubuntu-24.04
-    name: Deploy to Production
+    name: Deploy Preview
     steps:
       - uses: actions/checkout@v4
       
@@ -32,9 +35,9 @@ jobs:
             cp public/index.html deploy/
           fi
       
-      - name: Deploy to Cloudflare Pages
+      - name: Deploy to Cloudflare Pages (Preview)
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy deploy --project-name=${{ env.PROJECT_NAME }} --production
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy deploy --project-name=${{ env.PROJECT_NAME }}
